@@ -1,606 +1,1037 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>IQOS Mastery Quiz • Heat-Not-Burn Certification</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQOS PMI Training Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background: linear-gradient(145deg, #e9f0f5 0%, #dae4ed 100%);
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            padding: 1.8rem 1rem;
-            min-height: 100vh;
-        }
+  :root {
+    --bg: #07070f;
+    --bg2: #0e0e1a;
+    --bg3: #14142a;
+    --cyan: #00e8f5;
+    --cyan-dim: rgba(0,232,245,0.15);
+    --gold: #f0a800;
+    --gold-dim: rgba(240,168,0,0.15);
+    --easy: #22c55e;
+    --medium: #f59e0b;
+    --hard: #ef4444;
+    --white: #e8e8f5;
+    --muted: #6b6b8a;
+    --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+  }
 
-        /* main card */
-        .quiz-wrapper {
-            max-width: 850px;
-            margin: 0 auto;
-        }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        .quiz-card {
-            background: rgba(255,255,255,0.98);
-            backdrop-filter: blur(0px);
-            border-radius: 2rem;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0,0,0,0.02);
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,232,245,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 80% 90%, rgba(240,168,0,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        .quiz-inner {
-            padding: 1.8rem 2rem 2rem;
-        }
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* progress & header */
-        .progress-section {
-            margin-bottom: 1.6rem;
-        }
-        .progress-bar {
-            height: 8px;
-            background: #e2edf2;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #1D9E75, #2bbd8a);
-            border-radius: 20px;
-            transition: width 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            width: 0%;
-        }
+  /* ─── HOME SCREEN ─── */
+  #home {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 0;
+  }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-top: 0.8rem;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-        }
-        .q-counter {
-            background: #eef3fa;
-            padding: 0.25rem 1rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #1e4b6e;
-            letter-spacing: 0.3px;
-        }
-        .score-indicator {
-            background: #e0f2e9;
-            padding: 0.25rem 1rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #1b6e4f;
-        }
+  .logo-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cyan-dim);
+    border: 1px solid rgba(0,232,245,0.25);
+    border-radius: 100px;
+    padding: 8px 18px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .logo-badge span { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse 1.5s ease infinite; }
 
-        /* question area */
-        .q-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .q-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            color: #5b6e8c;
-            text-transform: uppercase;
-        }
-        .tricky-badge {
-            background: #fff0db;
-            color: #c46f0a;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 40px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
 
-        .question-text {
-            font-size: 1.35rem;
-            font-weight: 600;
-            line-height: 1.4;
-            color: #0a2540;
-            margin: 0.75rem 0 1.5rem 0;
-            background: #fbfeff;
-            padding: 0.2rem 0;
-        }
+  .home-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.05;
+    animation: fadeDown 0.6s 0.1s ease both;
+    margin-bottom: 8px;
+  }
+  .home-title .accent { color: var(--cyan); }
+  .home-title .accent2 { color: var(--gold); }
 
-        /* options grid */
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-        .option-btn {
-            background: #ffffff;
-            border: 1.5px solid #e2edf2;
-            border-radius: 20px;
-            padding: 0.9rem 1.2rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #1f3b4c;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            backdrop-filter: blur(2px);
-        }
-        .option-prefix {
-            font-weight: 800;
-            background: #f0f4f9;
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 40px;
-            color: #2c5a7a;
-        }
-        .option-btn:hover:not(:disabled) {
-            background: #f9fdfe;
-            border-color: #bdd4e2;
-            transform: translateX(4px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
-        .option-correct {
-            background: #e6f4ec;
-            border-color: #2c8c5a;
-            color: #1b5e3f;
-        }
-        .option-correct .option-prefix {
-            background: #cbe6da;
-            color: #1b6e4f;
-        }
-        .option-wrong {
-            background: #ffeae6;
-            border-color: #cd5a3c;
-            color: #aa3e1c;
-        }
-        .option-wrong .option-prefix {
-            background: #fadbd4;
-            color: #bc4a2a;
-        }
-        .option-btn:disabled {
-            cursor: default;
-            opacity: 0.9;
-        }
+  .home-sub {
+    color: var(--muted);
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    animation: fadeDown 0.6s 0.2s ease both;
+  }
 
-        /* explanation bubble */
-        .explanation-card {
-            background: #f6fafd;
-            border-radius: 1.2rem;
-            padding: 1rem 1.2rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            border-left: 5px solid #7f8fa4;
-            transition: all 0.2s;
-        }
-        .explanation-correct {
-            background: #eafaf2;
-            border-left-color: #2d9c6b;
-            color: #1a4f37;
-        }
-        .explanation-wrong {
-            background: #fff2ef;
-            border-left-color: #e26d4a;
-            color: #832e12;
-        }
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s 0.3s ease both;
+  }
 
-        /* navigation */
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-        .btn {
-            padding: 0.6rem 1.6rem;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            border: none;
-            background: white;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #2c5a7a;
-            border: 1px solid #cbdde6;
-        }
-        .btn-primary {
-            background: #1D9E75;
-            border: none;
-            color: white;
-            box-shadow: 0 2px 6px rgba(29,158,117,0.2);
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: #0f7e5b;
-            transform: scale(0.97);
-        }
-        .btn-secondary:hover {
-            background: #e9f0f5;
-            border-color: #b0cbdc;
-        }
-        .btn:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
+  .level-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .level-card:hover { transform: translateY(-2px); }
+  .level-card.selected { border-width: 2px; }
 
-        /* score screen */
-        .score-screen {
-            text-align: center;
-            padding: 1rem 0.5rem;
-        }
-        .score-circle {
-            font-size: 4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1D9E75, #118a62);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin: 0.5rem 0;
-        }
-        .badge-pass {
-            background: #dff3e9;
-            color: #196f4b;
-            padding: 0.4rem 1rem;
-            border-radius: 80px;
-            display: inline-block;
-            font-weight: 700;
-        }
-        .breakdown-stats {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
-            flex-wrap: wrap;
-        }
-        .stat-card {
-            background: #f8fafd;
-            border-radius: 28px;
-            padding: 1rem 1.4rem;
-            min-width: 110px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            border: 1px solid #e4edf2;
-        }
-        /* modal review */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(4px);
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .modal-card {
-            background: white;
-            max-width: 720px;
-            width: 90%;
-            max-height: 85vh;
-            border-radius: 2rem;
-            overflow-y: auto;
-            padding: 1.4rem;
-        }
-        .mistake-entry {
-            background: #fef7f0;
-            border-left: 4px solid #e67e22;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 1.2rem;
-        }
-        @media (max-width: 550px) {
-            .quiz-inner { padding: 1.2rem; }
-            .question-text { font-size: 1.1rem; }
-        }
-    </style>
+  .level-card[data-level="all"] { border-color: rgba(0,232,245,0.4); }
+  .level-card[data-level="all"].selected { background: var(--cyan-dim); border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,232,245,0.15); }
+  .level-card[data-level="easy"] { border-color: rgba(34,197,94,0.3); }
+  .level-card[data-level="easy"].selected { background: rgba(34,197,94,0.1); border-color: var(--easy); box-shadow: 0 0 20px rgba(34,197,94,0.15); }
+  .level-card[data-level="medium"] { border-color: rgba(245,158,11,0.3); }
+  .level-card[data-level="medium"].selected { background: rgba(245,158,11,0.1); border-color: var(--medium); box-shadow: 0 0 20px rgba(245,158,11,0.15); }
+  .level-card[data-level="hard"] { border-color: rgba(239,68,68,0.3); }
+  .level-card[data-level="hard"].selected { background: rgba(239,68,68,0.1); border-color: var(--hard); box-shadow: 0 0 20px rgba(239,68,68,0.15); }
+
+  .level-icon { font-size: 28px; margin-bottom: 8px; }
+  .level-label { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .level-count { font-size: 13px; color: var(--muted); }
+  .level-card[data-level="all"] .level-label { color: var(--cyan); }
+  .level-card[data-level="easy"] .level-label { color: var(--easy); }
+  .level-card[data-level="medium"] .level-label { color: var(--medium); }
+  .level-card[data-level="hard"] .level-label { color: var(--hard); }
+
+  .start-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    border-radius: 14px;
+    padding: 18px 56px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    animation: fadeDown 0.6s 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .start-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,232,245,0.4); }
+  .start-btn:active { transform: translateY(0); }
+
+  .q-count-display {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    animation: fadeDown 0.6s 0.5s ease both;
+  }
+
+  /* ─── QUIZ SCREEN ─── */
+  #quiz {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .quiz-header {
+    padding: 20px 24px 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  .quiz-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .q-number { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--muted); }
+  .q-level-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .q-level-badge.easy { background: rgba(34,197,94,0.12); color: var(--easy); }
+  .q-level-badge.medium { background: rgba(245,158,11,0.12); color: var(--medium); }
+  .q-level-badge.hard { background: rgba(239,68,68,0.12); color: var(--hard); }
+
+  .q-score-display { font-family: 'Syne', sans-serif; font-size: 14px; color: var(--cyan); font-weight: 600; }
+
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--gold));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+
+  .quiz-body {
+    flex: 1;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    animation: slideIn 0.35s ease;
+  }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .q-type-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(17px, 3vw, 21px);
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--white);
+  }
+
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.35s 0.1s ease both;
+  }
+
+  .option-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    transition: all 0.18s ease;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: rgba(0,232,245,0.4);
+    background: rgba(0,232,245,0.05);
+    transform: translateX(3px);
+  }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+
+  .option-btn.correct {
+    border-color: var(--easy);
+    background: rgba(34,197,94,0.1);
+  }
+  .option-btn.correct .option-letter {
+    background: var(--easy);
+    color: var(--bg);
+  }
+  .option-btn.wrong {
+    border-color: var(--hard);
+    background: rgba(239,68,68,0.1);
+  }
+  .option-btn.wrong .option-letter {
+    background: var(--hard);
+    color: var(--white);
+  }
+  .option-btn.reveal-correct {
+    border-color: rgba(34,197,94,0.5);
+    background: rgba(34,197,94,0.05);
+  }
+  .option-btn.reveal-correct .option-letter {
+    background: rgba(34,197,94,0.3);
+    color: var(--easy);
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .tf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    animation: fadeUp 0.35s 0.1s ease both;
+  }
+
+  .tf-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.18s ease;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .tf-btn .tf-icon { font-size: 28px; }
+  .tf-btn:hover:not(:disabled) { transform: translateY(-3px); }
+  .tf-btn.tf-true:hover:not(:disabled) { border-color: var(--easy); background: rgba(34,197,94,0.08); }
+  .tf-btn.tf-false:hover:not(:disabled) { border-color: var(--hard); background: rgba(239,68,68,0.08); }
+  .tf-btn.correct { border-color: var(--easy); background: rgba(34,197,94,0.12); color: var(--easy); }
+  .tf-btn.wrong { border-color: var(--hard); background: rgba(239,68,68,0.12); color: var(--hard); }
+  .tf-btn.reveal-correct { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.06); color: var(--easy); }
+  .tf-btn:disabled { cursor: default; }
+
+  .explanation-box {
+    background: rgba(0,232,245,0.06);
+    border: 1px solid rgba(0,232,245,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: rgba(232,232,245,0.8);
+    line-height: 1.6;
+    animation: fadeUp 0.3s ease both;
+  }
+  .explanation-box strong { color: var(--cyan); }
+
+  .next-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    background: transparent;
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+    border-radius: 12px;
+    padding: 15px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: flex-end;
+    animation: fadeUp 0.3s ease both;
+  }
+  .next-btn:hover { background: var(--cyan); color: var(--bg); transform: translateX(4px); }
+
+  /* ─── RESULTS SCREEN ─── */
+  #results {
+    align-items: center;
+    padding: 40px 20px;
+    gap: 24px;
+  }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: fadeDown 0.5s ease both;
+  }
+
+  .score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 4px solid var(--bg3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: fadeDown 0.5s 0.1s ease both;
+  }
+  .score-circle svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+  .score-number { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; color: var(--white); line-height: 1; }
+  .score-denom { font-size: 14px; color: var(--muted); }
+  .score-pct { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+
+  .score-grade {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    animation: fadeDown 0.5s 0.2s ease both;
+    text-align: center;
+  }
+
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+
+  .breakdown-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .breakdown-card .bd-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .breakdown-card .bd-score { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+  .breakdown-card .bd-total { font-size: 12px; color: var(--muted); }
+  .breakdown-card.easy .bd-label { color: var(--easy); }
+  .breakdown-card.easy .bd-score { color: var(--easy); }
+  .breakdown-card.medium .bd-label { color: var(--medium); }
+  .breakdown-card.medium .bd-score { color: var(--medium); }
+  .breakdown-card.hard .bd-label { color: var(--hard); }
+  .breakdown-card.hard .bd-score { color: var(--hard); }
+
+  .review-section {
+    width: 100%;
+    max-width: 700px;
+    animation: fadeUp 0.5s 0.4s ease both;
+  }
+  .review-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .review-item .ri-q { font-size: 14px; font-weight: 500; margin-bottom: 8px; line-height: 1.5; }
+  .ri-answers { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+  .ri-your { color: var(--hard); }
+  .ri-correct { color: var(--easy); }
+  .ri-exp { color: var(--muted); margin-top: 6px; font-size: 12px; }
+
+  .results-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }
+
+  .btn-restart {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    padding: 15px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,232,245,0.3); }
+
+  .btn-home {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    background: transparent;
+    color: var(--muted);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-home:hover { color: var(--white); border-color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 480px) {
+    .level-grid { grid-template-columns: 1fr 1fr; }
+    .breakdown-grid { grid-template-columns: repeat(3, 1fr); }
+    .tf-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
 </head>
 <body>
-<div class="quiz-wrapper">
-    <div class="quiz-card">
-        <div class="quiz-inner" id="quizInner">
-            <div class="progress-section">
-                <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
-                <div class="stats-bar">
-                    <span class="q-counter" id="qcDisplay">Question 1 of 50</span>
-                    <span class="score-indicator" id="scoreDisplay">⭐ Score: 0</span>
-                </div>
-            </div>
-            <div id="dynamicContent"></div>
-            <div class="nav-buttons">
-                <button class="btn btn-secondary" id="prevBtn">← Previous</button>
-                <button class="btn btn-primary" id="nextBtn">Next →</button>
-            </div>
-        </div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="logo-badge">
+    <div class="logo-dot"></div>
+    <span>IQOS PMI — Wave 36</span>
+  </div>
+  <h1 class="home-title">MASTER<br>YOUR <span class="accent">IQOS</span><br><span class="accent2">KNOWLEDGE</span></h1>
+  <p class="home-sub">150 questions across 3 difficulty levels</p>
+
+  <div class="level-grid">
+    <div class="level-card selected" data-level="all" onclick="selectLevel('all')">
+      <div class="level-icon">⚡</div>
+      <div class="level-label">All Levels</div>
+      <div class="level-count">150 questions</div>
     </div>
+    <div class="level-card" data-level="easy" onclick="selectLevel('easy')">
+      <div class="level-icon">🟢</div>
+      <div class="level-label">Easy</div>
+      <div class="level-count">50 questions</div>
+    </div>
+    <div class="level-card" data-level="medium" onclick="selectLevel('medium')">
+      <div class="level-icon">🟡</div>
+      <div class="level-label">Medium</div>
+      <div class="level-count">50 questions</div>
+    </div>
+    <div class="level-card" data-level="hard" onclick="selectLevel('hard')">
+      <div class="level-icon">🔴</div>
+      <div class="level-label">Hard</div>
+      <div class="level-count">50 questions</div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startQuiz()">Start Quiz →</button>
+  <p class="q-count-display" id="q-count-display">150 questions selected</p>
 </div>
 
-<div id="finalScreen" class="score-screen" style="display: none;">
-    <div style="font-size: 1.8rem; font-weight: 700;">🏁 Quiz Completed</div>
-    <div class="score-circle" id="finalScoreSpan"></div>
-    <div id="passMessage" class="badge-pass" style="margin-bottom: 1rem;"></div>
-    <div class="breakdown-stats">
-        <div class="stat-card"><div id="finalCorrect" style="font-size: 2rem; font-weight: 800; color:#1D9E75;">0</div><div>Correct</div></div>
-        <div class="stat-card"><div id="finalWrong" style="font-size: 2rem; font-weight: 800; color:#c2410c;">0</div><div>Wrong</div></div>
-        <div class="stat-card"><div id="finalTricky" style="font-size: 2rem; font-weight: 800; color:#b45309;">0</div><div>Tricky ✓</div></div>
+<!-- QUIZ -->
+<div class="screen" id="quiz">
+  <div class="quiz-header">
+    <div class="quiz-meta">
+      <span class="q-number" id="q-number">Question 1 / 150</span>
+      <span class="q-level-badge easy" id="q-level-badge">Easy</span>
+      <span class="q-score-display" id="q-score-display">0 / 0</span>
     </div>
-    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn btn-primary" id="restartQuizBtn">⟳ Restart Quiz</button>
-        <button class="btn btn-secondary" id="reviewMistakesBtnFinal">📖 Review Mistakes</button>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
     </div>
+  </div>
+
+  <div class="quiz-body" id="quiz-body">
+    <!-- dynamically filled -->
+  </div>
 </div>
 
-<div id="reviewModal" class="modal">
-    <div class="modal-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-weight: 700;">🔍 Mistake analysis</h3>
-            <button id="closeModalBtn" style="background: none; border: none; font-size: 1.8rem; cursor: pointer;">&times;</button>
-        </div>
-        <div id="mistakesList"></div>
-        <button class="btn btn-secondary" id="modalCloseFooter" style="margin-top: 1rem; width: 100%;">Close</button>
+<!-- RESULTS -->
+<div class="screen" id="results">
+  <p class="results-title">Quiz Complete</p>
+
+  <div class="score-circle" id="score-circle">
+    <svg viewBox="0 0 160 160" width="160" height="160">
+      <circle cx="80" cy="80" r="72" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+      <circle cx="80" cy="80" r="72" fill="none" stroke="var(--cyan)" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="452.4" stroke-dashoffset="452.4"
+        id="score-arc" style="transition: stroke-dashoffset 1.2s ease"/>
+    </svg>
+    <div class="score-number" id="score-num">0</div>
+    <div class="score-denom" id="score-denom">/ 0</div>
+  </div>
+
+  <div class="score-grade" id="score-grade">—</div>
+
+  <div class="breakdown-grid">
+    <div class="breakdown-card easy">
+      <div class="bd-label">Easy</div>
+      <div class="bd-score" id="bd-easy">0</div>
+      <div class="bd-total" id="bd-easy-t">/ 0</div>
     </div>
+    <div class="breakdown-card medium">
+      <div class="bd-label">Medium</div>
+      <div class="bd-score" id="bd-med">0</div>
+      <div class="bd-total" id="bd-med-t">/ 0</div>
+    </div>
+    <div class="breakdown-card hard">
+      <div class="bd-label">Hard</div>
+      <div class="bd-score" id="bd-hard">0</div>
+      <div class="bd-total" id="bd-hard-t">/ 0</div>
+    </div>
+  </div>
+
+  <div class="review-section" id="review-section"></div>
+
+  <div class="results-actions">
+    <button class="btn-restart" onclick="restartSame()">Retry Same Level</button>
+    <button class="btn-home" onclick="goHome()">← Back to Home</button>
+  </div>
 </div>
 
 <script>
-    // ---------- ORIGINAL QUESTION BANK (raw, will shuffle options) ----------
-    const rawQuestions = [
-        {q:"What does NCA stand for?",opts:["Non-Chemical Alternative","Non-Combusted Alternative","Nicotine Controlled Alternative","Non-Cigarette Alternative"],ans:1,exp:"NCA = Non-Combusted Alternative — the category IQOS belongs to, meaning tobacco is heated without combustion."},
-        {q:"What does HNB stand for?",opts:["High Nicotine Base","Heated Nicotine Blends","Heat Not Burn","Hybrid Nicotine Blend"],ans:2,exp:"HNB = Heat Not Burn. This is the core technology behind IQOS."},
-        {q:"At approximately what temperature does a regular cigarette burn?",opts:["350°C","600°C","800°C","1000°C"],ans:2,exp:"Regular cigarettes combust at around 800°C. IQOS heats at a much lower ~350°C."},
-        {q:"At approximately what temperature does IQOS heat tobacco?",opts:["150°C","250°C","350°C","500°C"],ans:2,exp:"IQOS heats tobacco at ~350°C — well below combustion temperature."},
-        {q:"How many puffs or minutes does one TEREA stick provide?",opts:["10 puffs or 5 min","14 puffs or 6 min","20 puffs or 7 min","12 puffs or 6 min"],ans:1,exp:"One TEREA stick lasts up to 14 puffs or 6 minutes per session."},
-        {q:"By how much does IQOS reduce harmful chemicals compared to cigarettes?",opts:["50%","75%","90%","95%"],ans:3,exp:"IQOS produces 95% fewer harmful chemicals than regular cigarettes."},
-        {q:"⚠️ TRICKY: Which of the following is NOT a benefit of IQOS compared to regular cigarettes?",opts:["No Smoke","No Ash","No Nicotine","No Smell"],ans:2,exp:"TRICKY — IQOS still contains nicotine! It produces no smoke, ash, or significant smell, but nicotine is still present in the aerosol.",tricky:true},
-        {q:"In the TEREA classic tobacco range, which flavor is the MOST intense?",opts:["Amber","Sienna","Russet","Khaki"],ans:2,exp:"Russet is the most intense classic tobacco flavor in the TEREA range."},
-        {q:"Which TEREA classic tobacco flavor has the LEAST intensity?",opts:["Silver","Amber","Rigan","Khaki"],ans:2,exp:"Rigan is the least intense in the classic tobacco range (Russet → Khaki → Sienna → Amber → Silver → Rigan)."},
-        {q:"How many TEREA flavors are officially available in Egypt?",opts:["9","10","12","14"],ans:2,exp:"Egypt has 12 TEREA flavors: Russet, Khaki, Sienna, Amber, Silver, Rigan, Turquoise, Purple Wave, Summer Wave, Sun Pearl, Oasis Pearl, and Arbor Pearl."},
-        {q:"Which TEREA flavor features a bold peppermint and deep menthol cooling?",opts:["Turquoise","Blue","Silver","Purple Wave"],ans:1,exp:"TEREA Blue is the boldest menthol option with intense peppermint and deep menthol cooling."},
-        {q:"TEREA Turquoise belongs to which category?",opts:["Classic Tobacco","Menthol","Aromatic Fruit","Pearl"],ans:1,exp:"TEREA Turquoise is a mild menthol with citrus notes — classified under the Menthol range."},
-        {q:"Which TEREA variants contain a crushable flavor capsule (pearl)?",opts:["Purple Wave, Summer Wave, Turquoise","Sun Pearl, Oasis Pearl, Arbor Pearl","Silver, Blue, Russet","Amber, Sienna, Khaki"],ans:1,exp:"The Pearl variants (Sun Pearl, Oasis Pearl, Arbor Pearl) contain a crushable pearl that releases an intense flavor burst when squeezed."},
-        {q:"⚠️ TRICKY: TEREA Blue is classified as which category?",opts:["Classic Tobacco (boldest)","Menthol","Aromatic","Pearl"],ans:1,exp:"TRICKY — Blue appears near the classic range on the whiteboard but it is actually a Menthol flavor (bold peppermint/menthol blend), NOT classic tobacco.",tricky:true},
-        {q:"In the TEREA intensity order (highest→lowest), what comes AFTER Amber?",opts:["Sienna","Khaki","Silver","Rigan"],ans:2,exp:"The order is: Russet → Khaki → Sienna → Amber → Silver → Rigan. So Silver comes after Amber."},
-        {q:"Which TEREA Pearl flavor features tropical fruits like raspberry, mango, lychee, and coconut?",opts:["Sun Pearl","Arbor Pearl","Oasis Pearl","Summer Wave"],ans:2,exp:"TEREA Oasis Pearl has a tropical blend of raspberry, mango, lychee, peach, and coconut."},
-        {q:"What heating technology does IQOS ILUMA use?",opts:["Blade heating","SmartCore Induction System","Convection heating","Laser heating"],ans:1,exp:"IQOS ILUMA uses the SmartCore Induction System™ — it heats the TEREA stick from within using induction rather than a blade."},
-        {q:"What material is the heating element inside a TEREA stick made of?",opts:["Copper","Titanium","Stainless Steel","Aluminum"],ans:2,exp:"The heating element inside every TEREA stick is coated with stainless steel."},
-        {q:"⚠️ TRICKY: Can TEREA sticks be used with IQOS Originals (blade-based) devices?",opts:["Yes, they're universal","No — TEREA is exclusively for ILUMA","Yes, but only IQOS 3 DUO","Only with an adapter"],ans:1,exp:"TRICKY — TEREA sticks are EXCLUSIVELY for IQOS ILUMA. Using them with older blade devices can cause damage.",tricky:true},
-        {q:"What is the main maintenance advantage of IQOS ILUMA over older IQOS models?",opts:["Larger battery","Bladeless design — no cleaning required","Faster charging","More puffs per session"],ans:1,exp:"ILUMA's bladeless SmartCore Induction design means no blade to clean and no tobacco residue in the holder."},
-        {q:"What does the Cooling Plug (Cellulose) do in a TEREA stick?",opts:["Heats the tobacco","Cools the aerosol before inhalation","Filters nicotine","Adds flavor"],ans:1,exp:"The cooling plug (made of cellulose) cools down the hot aerosol before it reaches your mouth for a smoother experience."},
-        {q:"Which component of the TEREA stick prevents tobacco residue from entering the device?",opts:["Cooling plug","Filter","Sealed closed tip","Air flow chamber"],ans:2,exp:"TEREA sticks are sealed on both sides — this prevents tobacco crumbs and residue from contaminating the holder."},
-        {q:"Which IQOS ILUMA i feature allows the holder to be used up to 3 times before recharging?",opts:["Flex Puff","Flex Battery","Up to 3 uses","Pause Mode"],ans:2,exp:"The ILUMA i supports up to 3 consecutive uses — a direct upgrade from the original ILUMA's 2 uses."},
-        {q:"Which IQOS ILUMA i device has a touchscreen?",opts:["ILUMA i One","ILUMA i","ILUMA i Prime","All three"],ans:1,exp:"The IQOS ILUMA i (standard) is the device with a touchscreen display for settings and status."},
-        {q:"⚠️ TRICKY: Which feature does ILUMA i One have that the original ILUMA One does NOT?",opts:["LED light","Auto Start","Bluetooth","Magnetic Lock"],ans:1,exp:"TRICKY — The original ILUMA One only had Auto Stop. The ILUMA i One adds Auto Start (as well as keeping Auto Stop and Flex Puff).",tricky:true},
-        {q:"What unique modes does the ILUMA i Prime offer for different usage preferences?",opts:["Flex Puff only","Pause Mode and Flex Battery","ECO mode and Single Use","Performance and Pause"],ans:2,exp:"The ILUMA i Prime features ECO mode and Single Use mode, in addition to the standard Flex Puff found on other i-series devices."},
-        {q:"⚠️ TRICKY: What is the pocket charger charge time for the original IQOS ILUMA?",opts:["90 minutes","135 minutes","120 minutes","75 minutes"],ans:1,exp:"TRICKY — The ILUMA One is 90 mins, but the IQOS ILUMA and ILUMA Prime both take 135 minutes to charge the pocket charger.",tricky:true},
-        {q:"How many sessions does the IQOS ILUMA holder provide when FULLY charged?",opts:["1 use","2 uses","10 uses","20 uses"],ans:1,exp:"The ILUMA holder supports 2 uses per full charge (1 use takes 1min50s, 2 uses take 5min15s to charge)."},
-        {q:"How does the IQOS ILUMA One differ from the regular IQOS ILUMA?",opts:["It uses HEETS sticks","It's a single-unit device — 20 uses with no separate pocket charger","It doesn't have Bluetooth","It has a touchscreen"],ans:1,exp:"The ILUMA One is an all-in-one device. When fully charged, it gives 20 uses with no separate pocket charger needed."},
-        {q:"⚠️ TRICKY: Which ILUMA device does NOT have a Magnetic Lock?",opts:["IQOS ILUMA","ILUMA Prime","ILUMA One","They all have it"],ans:2,exp:"TRICKY — The ILUMA One does NOT have a magnetic lock (it slides open like a lid). Both ILUMA and ILUMA Prime have magnetic locks.",tricky:true},
-        {q:"What is the opening mechanism of the IQOS ILUMA Prime?",opts:["Slide the lid","Side Door Mechanism","Wrap design","Soft Latch"],ans:2,exp:"The ILUMA Prime uses a distinctive wrap design — 'just remember the wrap design' as noted in your training materials."},
-        {q:"What color is exclusive to the ILUMA Prime and NOT shared with ILUMA or ILUMA One?",opts:["Moss Green","Sunset Red","Obsidian Black / Gold Khaki","Azure Blue"],ans:2,exp:"The original ILUMA Prime comes in Gold Khaki, Jade Green, Obsidian Black, and Bronze Taupe — none of which appear on ILUMA One or ILUMA."},
-        {q:"How does the IQOS Originals Duo differ from the Originals One in charger type?",opts:["Both use Type C to USB","Originals One uses Type C-USB; Duo uses Type C–Type C","Both use Micro USB","Originals One uses Type C–Type C"],ans:1,exp:"Originals One uses Type C to USB (older style), while the Originals Duo uses the newer Type C to Type C cable."},
-        {q:"What is the name of the limited edition color available on the IQOS Originals Duo?",opts:["Royal Purple","Iridescent Purple","Digital Violet","Lavender"],ans:1,exp:"The Originals Duo has a Limited Edition Iridescent Purple colorway, in addition to Silver, Slate, Scarlet, and Turquoise."},
-        {q:"Does the IQOS Originals One have Bluetooth connectivity?",opts:["Yes","No"],ans:1,exp:"No — the Originals One does NOT have Bluetooth. The Originals Duo does have Bluetooth."},
-        {q:"⚠️ TRICKY: How many CONSECUTIVE uses can the IQOS Originals One holder support?",opts:["1 use","2 uses","3 consecutive uses","10 uses"],ans:2,exp:"TRICKY — The Originals One holder gives 20 total uses but only 3 CONSECUTIVE uses before needing a break to recharge. Don't confuse this with total capacity.",tricky:true},
-        {q:"How many buttons does the IQOS 2.4+ have?",opts:["1","2","3","4"],ans:2,exp:"The IQOS 2.4+ has 3 buttons: Power Button, Latch Button, and Bluetooth Button — unlike all later models which have just 1 button."},
-        {q:"What type of light indicator does the IQOS 2.4+ use, different from all other IQOS models?",opts:["OLED display","Day Light LED","Neon indicator","Standard LED"],ans:1,exp:"The IQOS 2.4+ uses a Day Light LED — all later models use a standard LED."},
-        {q:"What cleaning tool is used with the IQOS 2.4+?",opts:["Silicon Brush & Cleaning Sticks","Dual Silicon Brush","Egg Brush","Cotton swab"],ans:2,exp:"The IQOS 2.4+ uses a unique Egg Brush for cleaning. All later models use Silicon Brush & Cleaning Sticks (or nothing for ILUMA)."},
-        {q:"⚠️ TRICKY: What is the operating temperature range of the IQOS 2.4+?",opts:["0–40°C","0–50°C","10–40°C","5–45°C"],ans:2,exp:"TRICKY — The IQOS 2.4+ has a minimum operating temperature of 10°C, while all newer models (IQOS 3 and onwards) operate from 0°C.",tricky:true},
-        {q:"Which legacy IQOS device allows 10 consecutive uses from the holder (without a pocket charger)?",opts:["IQOS 2.4+","IQOS 3","IQOS Multi","IQOS 3.1 DUO"],ans:2,exp:"The IQOS Multi is the one with 10 consecutive uses from a single charge — it doesn't have a separate pocket charger."},
-        {q:"What charger connection type does the IQOS 2.4+ use?",opts:["Type C","Type A USB","Micro USB","Lightning"],ans:2,exp:"The IQOS 2.4+ uses Micro USB — all newer IQOS models use Type C."},
-        {q:"Which was the FIRST IQOS device to introduce NFC connectivity?",opts:["IQOS 2.4+","IQOS 3","IQOS Multi","IQOS 3.1 DUO"],ans:1,exp:"The IQOS 3 was the first to introduce NFC. The 2.4+ had no NFC. IQOS Multi and 3.1 DUO also have NFC."},
-        {q:"What does GDPR stand for?",opts:["General Digital Protection Regulation","General Data Privacy Rules","General Data Protection Regulation","Global Data Protection Rights"],ans:2,exp:"GDPR = General Data Protection Regulation — the EU framework governing how personal data is handled."},
-        {q:"What does DSR stand for in the context of GDPR?",opts:["Data Security Record","Data Subject Request","Digital Safety Regulation","Data System Report"],ans:1,exp:"DSR = Data Subject Request — the formal process by which a customer exercises their GDPR rights."},
-        {q:"Within how many hours must a Data Correction request be responded to?",opts:["24 hours","48 hours","72 hours","96 hours"],ans:2,exp:"Data Correction, Don't Contact requests, and Info of Data must all be handled within 72 hours."},
-        {q:"⚠️ TRICKY: Which of the following scenarios results in data DELETION (not retention)?",opts:["Customer wants a copy of their data","Customer has stopped using nicotine","Customer corrected their address","Customer asked for info about their data"],ans:1,exp:"TRICKY — A customer who has stopped using nicotine is a Data Erasure case that leads to DELETION. The others are handled but data is kept.",tricky:true},
-        {q:"What is the maximum response time for a 'Copy of Data' request under GDPR?",opts:["72 hours","3 to 30 days","24 hours","7 days"],ans:1,exp:"Under GDPR, a 'Copy of Data' (data access request) must be responded to without undue delay, but the maximum timeframe is 3 to 30 days depending on complexity. The standard expectation is 30 days max, with possible extension."},
-        {q:"⚠️ TRICKY: The IQOS ILUMA i comes in how many colors?",opts:["4","5","6","3"],ans:1,exp:"TRICKY — The ILUMA i comes in 5 colors: Breeze Blue, Midnight Black, Vivid Terracotta, Leaf Green, and Digital Violet.",tricky:true},
-        {q:"Which of the following correctly lists the IQOS Originals Duo pocket charger charge time?",opts:["90 minutes","120 minutes","135 minutes","75 minutes"],ans:1,exp:"The Originals Duo pocket charger takes 120 minutes. The Originals One also takes 90 minutes (same as ILUMA One)."}
-    ];
+const ALL_QUESTIONS = [
+// ── EASY (1-50) ──
+{id:1,l:'easy',t:'mcq',q:'What does HNB stand for?',o:['Heat Not Burn','High Nicotine Base','Hybrid Nicotine Battery','Heated Nicotine Base'],a:0,e:'HNB = Heat Not Burn — the core technology behind IQOS.'},
+{id:2,l:'easy',t:'mcq',q:'What does NCA stand for?',o:['Nicotine Controlled Alternative','Non-Combusted Alternative','Nicotine Combustion Agent','Non-Chemical Additive'],a:1,e:'NCA = Non-Combusted Alternative.'},
+{id:3,l:'easy',t:'mcq',q:'At what temperature does IQOS heat tobacco?',o:['600°C','800°C','350°C','450°C'],a:2,e:'IQOS heats at 350°C — far below the 800°C of cigarettes.'},
+{id:4,l:'easy',t:'mcq',q:'At what temperature do regular cigarettes burn?',o:['350°C','600°C','1000°C','800°C'],a:3,e:'Cigarettes burn at 800°C. IQOS only heats at 350°C.'},
+{id:5,l:'easy',t:'mcq',q:'What does LAS stand for?',o:['Legal Age Standard','Legal Aged Smoker','Low Addiction Score','Licensed Adult Smoker'],a:1,e:'LAS = Legal Aged Smoker — a cigarette user who is not yet an IQOS user.'},
+{id:6,l:'easy',t:'mcq',q:'What does LAU stand for?',o:['Linked Account User','Legal Aged User','Licensed IQOS User','Loyalty Award Unit'],a:1,e:'LAU = Legal Aged User — an existing IQOS user.'},
+{id:7,l:'easy',t:'tf',q:'IQOS ILUMA devices produce smoke.',o:['True','False'],a:1,e:'IQOS produces vapor, not smoke. No combustion occurs.'},
+{id:8,l:'easy',t:'tf',q:'IQOS ILUMA devices produce ash.',o:['True','False'],a:1,e:'No combustion = no ash. One of the key NCA benefits.'},
+{id:9,l:'easy',t:'tf',q:'IQOS ILUMA requires a cleaning blade after use.',o:['True','False'],a:1,e:'ILUMA is bladeless — uses Smart Core Induction System. No cleaning needed.'},
+{id:10,l:'easy',t:'mcq',q:'What does GDPR stand for?',o:['General Data Privacy Regulation','Global Data Protection Rules','General Data Protection Regulation','General Digital Privacy Rights'],a:2,e:'GDPR = General Data Protection Regulation.'},
+{id:11,l:'easy',t:'mcq',q:'What does DSR stand for?',o:['Data Safety Record','Data Subject Request','Device Software Reset','Digital Service Report'],a:1,e:'DSR = Data Subject Request.'},
+{id:12,l:'easy',t:'mcq',q:'What color light on an IQOS device means it needs charging?',o:['Red','White','Blue','Yellow'],a:3,e:'Yellow = device needs to charge.'},
+{id:13,l:'easy',t:'mcq',q:'What color light means the device needs a reset?',o:['Yellow','Red','White','Green'],a:1,e:'Red = device needs a reset.'},
+{id:14,l:'easy',t:'mcq',q:'What color light means the device is out of operating temperature?',o:['Red','Yellow','White','Blue'],a:2,e:'White = out of operating temperature.'},
+{id:15,l:'easy',t:'mcq',q:'What does MBG stand for?',o:['Maximum Benefit Guarantee','Money Back Guarantee','Member Benefits Group','Monthly Bonus Gift'],a:1,e:'MBG = Money Back Guarantee.'},
+{id:16,l:'easy',t:'mcq',q:'What does MGM stand for?',o:['Member Get Member','Mobile Gift Market','My IQOS Gift Market','Member Grade Module'],a:0,e:'MGM = Member Get Member — the IQOS Ambassador referral badge program.'},
+{id:17,l:'easy',t:'tf',q:'VEEV is a disposable e-cigarette product from IQOS.',o:['True','False'],a:0,e:'Correct — VEEV is a disposable product from IQOS.'},
+{id:18,l:'easy',t:'mcq',q:'What does CCP stand for?',o:['Customer Care Program','Consumables Circular Program','Club Credit Points','Consumer Collection Plan'],a:1,e:'CCP = Consumables Circular Program.'},
+{id:19,l:'easy',t:'mcq',q:'How many puffs does a VEEV provide?',o:['500','750','1100','1500'],a:2,e:'VEEV = 1100 puffs / 2mL.'},
+{id:20,l:'easy',t:'mcq',q:'What does OOB stand for?',o:['Out of Box','Order on Behalf','Online Order Booking','Order Override Button'],a:1,e:'OOB = Order on Behalf.'},
+{id:21,l:'easy',t:'mcq',q:'What does PoR stand for?',o:['Point of Return','Proof of Refund','Purchase or Return','Payment on Request'],a:1,e:'PoR = Proof of Refund.'},
+{id:22,l:'easy',t:'tf',q:'In Egypt, IQOS runs special promotions and discounts on Terea tobacco sticks.',o:['True','False'],a:1,e:'Egypt policy: NO sales, offers, or giveaways on nicotine/tobacco products.'},
+{id:23,l:'easy',t:'mcq',q:'What is the price of ILUMA in Egypt?',o:['1,200 EGP','1,700 EGP','2,400 EGP','4,500 EGP'],a:1,e:'ILUMA = 1,700 EGP (no Terea packs included).'},
+{id:24,l:'easy',t:'mcq',q:'What is the price of ILUMA I One?',o:['1,700 EGP','2,400 EGP','1,200 EGP','900 EGP'],a:2,e:'ILUMA I One = 1,200 EGP (includes 2 Terea packs in the price).'},
+{id:25,l:'easy',t:'mcq',q:'What is the price of ILUMA I?',o:['1,700 EGP','1,200 EGP','4,500 EGP','2,400 EGP'],a:3,e:'ILUMA I = 2,400 EGP (includes 3 Terea packs in the price).'},
+{id:26,l:'easy',t:'mcq',q:'What is the price of ILUMA I Prime?',o:['2,400 EGP','3,500 EGP','4,500 EGP','5,000 EGP'],a:2,e:'ILUMA I Prime = 4,500 EGP (includes 5 Terea packs in the price).'},
+{id:27,l:'easy',t:'mcq',q:'How many Terea packs come with the ILUMA I?',o:['1','2','3','5'],a:2,e:'ILUMA I includes 3 Terea packs — bundled into the device price.'},
+{id:28,l:'easy',t:'mcq',q:'How many Terea packs come with ILUMA I One?',o:['1','2','3','0'],a:1,e:'ILUMA I One includes 2 Terea packs.'},
+{id:29,l:'easy',t:'mcq',q:'How many Terea packs come with ILUMA I Prime?',o:['3','4','5','6'],a:2,e:'ILUMA I Prime includes 5 Terea packs.'},
+{id:30,l:'easy',t:'tf',q:'The Terea packs included with IQOS devices are free gifts on top of the device price.',o:['True','False'],a:1,e:'Terea packs are included IN the device price — not free gifts. We never give away tobacco products in Egypt.'},
+{id:31,l:'easy',t:'mcq',q:'What is the nicotine level of VEEV?',o:['10mg','15mg','18mg','20mg'],a:3,e:'VEEV nicotine = 20mg.'},
+{id:32,l:'easy',t:'mcq',q:'What does AE stand for in the IQOS context?',o:['Account Executive','Adverse Event','Age Eligibility','Activation Error'],a:1,e:'AE = Adverse Event — any health-related issue reported by a customer.'},
+{id:33,l:'easy',t:'mcq',q:'What does eSRF stand for?',o:['Electronic Service Request Form','Electronic Safety Reporting Form','Emergency Support Request Form','Enhanced System Report File'],a:1,e:'eSRF = Electronic Safety Reporting Form — used when an AE is reported.'},
+{id:34,l:'easy',t:'tf',q:'ILUMA I One gives 20 consecutive uses on a full charge.',o:['True','False'],a:0,e:'Yes — both ILUMA One and ILUMA I One give 20 consecutive uses.'},
+{id:35,l:'easy',t:'tf',q:'ILUMA device gives 3 consecutive uses on a full holder charge.',o:['True','False'],a:1,e:'ILUMA gives 2 consecutive uses, not 3. ILUMA I gives 3.'},
+{id:36,l:'easy',t:'mcq',q:'What is the HIGHEST intensity Terea classic variant?',o:['Amber','Sienna','Russet','Khaki'],a:2,e:'Russet is the most intense — equivalent to a "Red/Strong" cigarette.'},
+{id:37,l:'easy',t:'mcq',q:'What flavor is Terea Blue?',o:['Blueberry','Regular mint','Strong mint','Peach'],a:2,e:'Terea Blue = Strong mint.'},
+{id:38,l:'easy',t:'mcq',q:'What flavor is Terea Turquoise?',o:['Strong mint','Regular mint','Berry','Peach'],a:1,e:'Terea Turquoise = Regular mint.'},
+{id:39,l:'easy',t:'mcq',q:'What flavor is Terea Purple Wave?',o:['Grape','Lavender','Berry','Tropical mix'],a:2,e:'Terea Purple Wave = Berry.'},
+{id:40,l:'easy',t:'mcq',q:'What flavor is Terea Summer Wave?',o:['Watermelon','Mango','Peach','Tropical'],a:2,e:'Terea Summer Wave = Peach.'},
+{id:41,l:'easy',t:'mcq',q:'What flavor is Terea Sun Pearl?',o:['Lemon','Watermelon','Apple','Passion fruit'],a:1,e:'Terea Sun Pearl = Watermelon (Pearl/switch type).'},
+{id:42,l:'easy',t:'mcq',q:'What flavor is Terea Aoisis Pearl?',o:['Apple mint','Watermelon','Passion fruit','Tropical mix'],a:2,e:'Terea Aoisis Pearl = Passion fruit.'},
+{id:43,l:'easy',t:'mcq',q:'What flavor is Terea Arbor Pearl?',o:['Apple mint','Green tea','Spearmint','Apple'],a:0,e:'Terea Arbor Pearl = Apple mint.'},
+{id:44,l:'easy',t:'mcq',q:'What is the price per PACK for regular Terea variants (classic/flavored)?',o:['75 EGP','82 EGP','87 EGP','90 EGP'],a:1,e:'Regular Terea (classic + flavor) = 82 EGP per pack.'},
+{id:45,l:'easy',t:'mcq',q:'What is the price per BUNDLE for regular Terea variants?',o:['750 EGP','810 EGP','820 EGP','870 EGP'],a:2,e:'Regular Terea bundle = 820 EGP.'},
+{id:46,l:'easy',t:'mcq',q:'What is the price per PACK for Terea Pearl variants?',o:['82 EGP','84 EGP','85 EGP','87 EGP'],a:3,e:'Pearl Terea = 87 EGP per pack.'},
+{id:47,l:'easy',t:'mcq',q:'What is the price per BUNDLE for Terea Pearl variants?',o:['820 EGP','850 EGP','870 EGP','890 EGP'],a:2,e:'Pearl Terea bundle = 870 EGP.'},
+{id:48,l:'easy',t:'tf',q:'Terea Pearl variants contain a switch inside that can be crushed to release flavor.',o:['True','False'],a:0,e:'Yes — Pearl variants have a switch. Crush it for flavor, or use without crushing for plain tobacco taste.'},
+{id:49,l:'easy',t:'mcq',q:'What does DCE refer to in your call center role?',o:['Data Collection Engine','The main system agents use (90% of tasks)','Digital Customer Experience','Device Configuration Environment'],a:1,e:'DCE = the main system agents work on for almost everything.'},
+{id:50,l:'easy',t:'tf',q:'IQOS ILUMA devices are bladeless.',o:['True','False'],a:0,e:'Yes — ILUMA is completely bladeless, using Smart Core Induction System.'},
 
-    // Shuffle options for each question and store shuffled version
-    function shuffleOptions(question) {
-        const originalOpts = [...question.opts];
-        const originalAnsIdx = question.ans;
-        const correctAnswerText = originalOpts[originalAnsIdx];
-        // create array of indices
-        let indices = [0,1,2,3];
-        for (let i = indices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        const newOpts = indices.map(i => originalOpts[i]);
-        const newAnsIdx = newOpts.findIndex(opt => opt === correctAnswerText);
-        return {
-            q: question.q,
-            opts: newOpts,
-            ans: newAnsIdx,
-            exp: question.exp,
-            tricky: question.tricky || false
-        };
-    }
+// ── MEDIUM (51-100) ──
+{id:51,l:'medium',t:'mcq',q:'How long is the MBG (Money Back Guarantee) trial period?',o:['7 days','10 days','14 days','30 days'],a:2,e:'MBG = buy the device, try it for 14 days, return it if you don\'t like it.'},
+{id:52,l:'medium',t:'mcq',q:'What is the GDPR SLA for a "Data Correction" request?',o:['24 hours','48 hours','72 hours','7 days'],a:2,e:'Data Correction = 72-hour SLA.'},
+{id:53,l:'medium',t:'mcq',q:'Which DSR type has a 3-30 day SLA?',o:['Data Correction','Don\'t Contact','Copy of Data','Info of Data'],a:2,e:'Copy of Data, Data Erasure, and Any Other Request all have 3-30 day SLAs.'},
+{id:54,l:'medium',t:'mcq',q:'Which DSR types have a 72-hour SLA?',o:['Data Correction only','Data Correction, Don\'t Contact, and Info of Data','All 6 DSR types','Data Erasure and Copy of Data'],a:1,e:'72h SLA: Data Correction, Don\'t Contact, Info of Data.'},
+{id:55,l:'medium',t:'tf',q:'Data Erasure has a 72-hour SLA.',o:['True','False'],a:1,e:'Data Erasure SLA = 3-30 days, not 72 hours.'},
+{id:56,l:'medium',t:'mcq',q:'A customer who is below 18 requests Data Erasure. What should you do?',o:['Reject — minors cannot make DSR requests','Ask for detailed age verification first','Process the Data Erasure','Escalate to supervisor only'],a:2,e:'Below 18 is one of the valid reasons to process Data Erasure.'},
+{id:57,l:'medium',t:'mcq',q:'What is the maximum number of extra puffs Flex Puff can provide?',o:['2','3','4','5'],a:2,e:'Flex Puff provides up to 4 extra puffs — not guaranteed every time.'},
+{id:58,l:'medium',t:'tf',q:'Flex Puff is guaranteed to activate after every standard experience.',o:['True','False'],a:1,e:'Flex Puff depends on how much Terea was consumed — not always activated.'},
+{id:59,l:'medium',t:'mcq',q:'For how long can Pause Mode hold an ILUMA I experience?',o:['5 minutes','8 minutes','10 minutes','6 minutes'],a:1,e:'Pause Mode holds for up to 8 minutes before Terea auto-consumes.'},
+{id:60,l:'medium',t:'mcq',q:'During which part of the experience can you activate Pause Mode?',o:['Any time during the experience','First half only (3 min or 8 puffs)','Second half only','Last 2 minutes only'],a:1,e:'Pause Mode = first half only (first 3 minutes or 8 puffs).'},
+{id:61,l:'medium',t:'tf',q:'You can use Pause Mode in both the 1st AND 2nd consecutive experience.',o:['True','False'],a:1,e:'Pause Mode can only be used in the 1st OR 2nd experience — not both.'},
+{id:62,l:'medium',t:'mcq',q:'After using Pause Mode once, what must you do before getting another consecutive experience?',o:['Wait 5 minutes','Clean the device','Put the holder back in the pocket charger','Hold the button to restart'],a:2,e:'After using Pause Mode once → must return holder to pocket charger before 3rd experience.'},
+{id:63,l:'medium',t:'mcq',q:'In ECO mode (Flex Battery), how many uses does the holder give per charge?',o:['1','2','3','Unlimited'],a:0,e:'ECO mode = 1 use per charge only.'},
+{id:64,l:'medium',t:'mcq',q:'Which features are available in ECO mode (Flex Battery)?',o:['All features unlocked','Flex Puff and Pause Mode','Flex Puff only','Pause Mode only'],a:2,e:'ECO mode = 1 use per charge + Flex Puff only. Everything else is restricted.'},
+{id:65,l:'medium',t:'mcq',q:'What does the ILUMA I touch screen display to the user?',o:['Battery % of pocket charger','Preheating process, experiences remaining, time left, and Pause Mode control','Wi-Fi and Bluetooth status','Number of Terea packs used this week'],a:1,e:'Touch screen: preheating, experiences remaining, time left, and Pause Mode (swipe to control).'},
+{id:66,l:'medium',t:'mcq',q:'How do you ACTIVATE Pause Mode on the ILUMA I touch screen?',o:['Double-tap the button','Swipe DOWN on the touch screen','Hold button for 3 seconds','Swipe UP on the touch screen'],a:1,e:'Swipe DOWN = activate Pause Mode. Swipe UP = deactivate.'},
+{id:67,l:'medium',t:'tf',q:'If Pause Mode is not deactivated within 8 minutes, the Terea stick automatically gets fully consumed.',o:['True','False'],a:0,e:'Yes — Terea auto-consumes after 8 minutes of Pause Mode without deactivation.'},
+{id:68,l:'medium',t:'mcq',q:'For VEEV Guided Trial, how many flavors can the customer try?',o:['1','2','Up to 3','Up to 5'],a:2,e:'VEEV Guided Trial = up to 3 flavors, 5-8 puffs each.'},
+{id:69,l:'medium',t:'mcq',q:'For VEEV Device Take Back, how many used/empty VEEVs must be returned?',o:['1','2','3','5'],a:2,e:'Device Take Back = return 3 empty VEEVs → receive a voucher.'},
+{id:70,l:'medium',t:'tf',q:'In VEEV Swap, the old device can be damaged as long as it has some liquid remaining.',o:['True','False'],a:1,e:'VEEV Swap requires the old device to be UNDAMAGED with a tiny amount of liquid left.'},
+{id:71,l:'medium',t:'mcq',q:'How many people can you share your MGM code with?',o:['5','7','10','15'],a:3,e:'MGM code can be shared with up to 15 people.'},
+{id:72,l:'medium',t:'mcq',q:'For how many successful MGM referrals do you actually earn vouchers?',o:['5','7','10','15'],a:1,e:'Vouchers are earned on up to 7 successful referrals.'},
+{id:73,l:'medium',t:'mcq',q:'How many characters does a DEVICE identify code have?',o:['12','14','16','10'],a:1,e:'Device identify code = 14 alphanumeric characters, starts with capital T.'},
+{id:74,l:'medium',t:'mcq',q:'The device identify code (on holder/pocket charger) starts with which letter?',o:['I','D','T','A'],a:2,e:'Device identify code starts with capital T.'},
+{id:75,l:'medium',t:'mcq',q:'How long does express delivery take in Fifth Settlement?',o:['30 minutes','1 hour','2 hours','Same day (varies)'],a:1,e:'Fifth Settlement express delivery = 1 hour only.'},
+{id:76,l:'medium',t:'mcq',q:'Which area is the ONLY one eligible for express delivery?',o:['Maadi','New Cairo','Fifth Settlement (التجمع الخامس)','Heliopolis'],a:2,e:'Express delivery is exclusively available in Fifth Settlement.'},
+{id:77,l:'medium',t:'mcq',q:'What is the normal delivery time for Cairo, Giza, Alexandria, and Gharbia?',o:['Same day','1-2 working days','2-4 working days','3-5 working days'],a:1,e:'Main cities (Cairo/Giza/Alex/Gharbia) = 1-2 working days.'},
+{id:78,l:'medium',t:'mcq',q:'What is the maximum number of devices you can order per DAY?',o:['1','2','3','5'],a:1,e:'Max 2 devices per day.'},
+{id:79,l:'medium',t:'mcq',q:'What is the maximum total number of devices allowed per 6 months?',o:['3','4','5','10'],a:2,e:'Max 5 devices per 6 months.'},
+{id:80,l:'medium',t:'tf',q:'North Sinai is a restricted delivery area where IQOS doesn\'t deliver.',o:['True','False'],a:0,e:'Yes — restricted areas include North Sinai, Western Desert, Al Arish, Al Wahat, Al Wadi El Gedid.'},
+{id:81,l:'medium',t:'mcq',q:'How long does it take for an IQOS Club badge to unlock after completing the required action?',o:['24 hours','48-72 hours','1 week','Immediately'],a:1,e:'IQOS Club badges take 48-72 hours to unlock after the action is completed.'},
+{id:82,l:'medium',t:'mcq',q:'What is the maximum capacity of a CCP (Consumables Circular Program) bag?',o:['1 bundle','2 bundles','2.5 bundles','3 bundles'],a:2,e:'Each CCP bag holds up to 2.5 Terea bundles.'},
+{id:83,l:'medium',t:'mcq',q:'How many bags must be dropped off to START unlocking the Consumables Circular Hero badge?',o:['1','2','3','5'],a:1,e:'Level 1 of Consumables Circular Hero = drop off 2 bags.'},
+{id:84,l:'medium',t:'tf',q:'ILUMA One gets a 2-year Care Plus warranty if the device is linked within 30 days.',o:['True','False'],a:1,e:'ILUMA One always has 1 year only — Care Plus (2 years) is for ILUMA I series only.'},
+{id:85,l:'medium',t:'tf',q:'ILUMA Prime always has a 1-year warranty regardless of purchase date.',o:['True','False'],a:0,e:'Correct — ILUMA One and ILUMA Prime are always 1 year, no exceptions.'},
+{id:86,l:'medium',t:'mcq',q:'What is the key warranty policy change date?',o:['1/1/2025','23/6/2025','1/9/2023','31/12/2024'],a:1,e:'23/6/2025 = the date warranty changed from software+physical to software only.'},
+{id:87,l:'medium',t:'mcq',q:'Before 23/6/2025, what did IQOS warranty cover?',o:['Software issues only','Physical damage only','Software + Physical damage','All damage including accidental'],a:2,e:'Pre-23/6/2025: 1 year, covers software + physical damage (1 physical replacement).'},
+{id:88,l:'medium',t:'mcq',q:'After 23/6/2025, what does the standard IQOS warranty cover?',o:['Physical damage only','Software issues only','All types of damage','Software + Physical'],a:1,e:'Post-23/6/2025: 1 year, software only.'},
+{id:89,l:'medium',t:'mcq',q:'Within how many days of purchase must ILUMA I be linked to activate the 2-year Care Plus?',o:['14 days','20 days','30 days','60 days'],a:2,e:'Must link ILUMA I within 30 days → gets Care Plus (2 years, software only).'},
+{id:90,l:'medium',t:'mcq',q:'Which Terea variants are equivalent to a "Blue/Mid" cigarette intensity?',o:['Russet and Khaki','Sienna and Amber','Silver and Regan','Amber and Silver'],a:1,e:'Mid/Blue intensity = Sienna and Amber (3rd and 4th in the intensity scale).'},
+{id:91,l:'medium',t:'mcq',q:'Which Terea variants are equivalent to a "Red/Strong" cigarette intensity?',o:['Russet and Khaki','Sienna and Amber','Silver and Regan','Russet and Sienna'],a:0,e:'Red/Strong = Russet and Khaki — the top 2 in intensity.'},
+{id:92,l:'medium',t:'mcq',q:'What is the refund SLA for Visa payment (PoR)?',o:['24 hours','3 working days','7 days','14 days'],a:1,e:'Visa PoR = 3 working days.'},
+{id:93,l:'medium',t:'mcq',q:'Which order statuses allow you to cancel an order?',o:['Any status before delivery','Created only','Created or Received','Shipped or Delivered'],a:2,e:'Only Created or Received orders can be cancelled + form escalated.'},
+{id:94,l:'medium',t:'tf',q:'You can directly cancel a Shipped order on the system.',o:['True','False'],a:1,e:'Cannot cancel a Shipped order — advise customer to refuse delivery. No form escalation.'},
+{id:95,l:'medium',t:'mcq',q:'What should you tell a customer who wants to cancel an already Shipped order?',o:['Nothing can be done, sorry','Refuse the delivery when it arrives','Call back after delivery','Open a formal legal complaint'],a:1,e:'Advise: refuse the delivery. No form escalation needed for shipped orders.'},
+{id:96,l:'medium',t:'mcq',q:'What is a "stuck order"?',o:['An order that failed payment','An order visible in OOB but NOT in DCE','A cancelled order stuck in processing','An order with wrong delivery address'],a:1,e:'Stuck order = appears in OOB but is missing/not visible in DCE.'},
+{id:97,l:'medium',t:'tf',q:'Bluefy is an Android app used to pair IQOS devices with the WebApp.',o:['True','False'],a:1,e:'Bluefy is for iOS/iPhone ONLY — iOS has a Bluetooth pairing issue with the WebApp.'},
+{id:98,l:'medium',t:'mcq',q:'What is the maximum single order amount in EGP?',o:['3,000 EGP','5,000 EGP','6,000 EGP','10,000 EGP'],a:2,e:'Maximum order amount = 6,000 EGP.'},
+{id:99,l:'medium',t:'tf',q:'The product/box identify code (on Terea box) starts with the letter T.',o:['True','False'],a:1,e:'Only the DEVICE code starts with T (14 chars). Box/product code = 12 alphanumeric, no T prefix.'},
+{id:100,l:'medium',t:'mcq',q:'Which system do you escalate Adverse Events (AE) to?',o:['CRM','MAGS','LSMV','DCE'],a:2,e:'AE flow: detect AE → fill eSRF → escalate to LSMV (LifeSphere MultiVigilance).'},
 
-    // Build final questions (each with shuffled options)
-    let questions = rawQuestions.map(q => shuffleOptions(q));
-    
-    // State
-    let currentIdx = 0;
-    let userSelections = new Array(50).fill(-1);
-    let totalScore = 0;
-    const trickyIndices = questions.map((q, idx) => q.tricky ? idx : -1).filter(i => i !== -1);
-    
-    const dynamicDiv = document.getElementById('dynamicContent');
-    const progFill = document.getElementById('progFill');
-    const qcDisplay = document.getElementById('qcDisplay');
-    const scoreDisplaySpan = document.getElementById('scoreDisplay');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const quizInner = document.getElementById('quizInner');
-    const finalScreenDiv = document.getElementById('finalScreen');
-    const restartMainBtn = document.getElementById('restartQuizBtn');
-    const reviewFinalBtn = document.getElementById('reviewMistakesBtnFinal');
-    const modal = document.getElementById('reviewModal');
-    const mistakeListDiv = document.getElementById('mistakesList');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const modalCloseFooter = document.getElementById('modalCloseFooter');
+// ── HARD (101-150) ──
+{id:101,l:'hard',t:'mcq',q:'Which of the following is NOT a valid reason to process a Data Erasure request?',o:['Customer stopped nicotine use','Customer is below 18','Customer wants to upgrade their device','Customer wants to quit smoking'],a:2,e:'Wanting to upgrade a device is NOT a Data Erasure reason.'},
+{id:102,l:'hard',t:'mcq',q:'A customer calls reporting a health reaction after using IQOS. What is the correct action?',o:['Advise them to see a doctor and close the case','Fill the eSRF and escalate to LSMV','Offer a replacement device immediately','Process as a standard product complaint'],a:1,e:'AE (Adverse Event) = fill the eSRF and escalate to LSMV — mandatory.'},
+{id:103,l:'hard',t:'tf',q:'ILUMA I and ILUMA I Prime have exactly the same features.',o:['True','False'],a:0,e:'Correct — identical features. Only differ in design, price, colors, and warranty coverage.'},
+{id:104,l:'hard',t:'mcq',q:'How many consecutive uses does ILUMA I give when the holder is FULLY charged?',o:['1','2','3','5'],a:2,e:'ILUMA I (fully charged holder) = 3 consecutive uses.'},
+{id:105,l:'hard',t:'mcq',q:'What is the holder charging time for ILUMA I to get 2 uses (3 consecutive experiences)?',o:['1\'50"','3\'30"','5\'15"','7\'00"'],a:2,e:'ILUMA I: 1\'50" for 1 use, 5\'15" for 2 uses (which equals 3 consecutive experiences).'},
+{id:106,l:'hard',t:'tf',q:'ILUMA I One has a Pause Mode feature.',o:['True','False'],a:1,e:'ILUMA I One only has: Auto Start, Auto Stop, Flex Puff. No Pause Mode.'},
+{id:107,l:'hard',t:'mcq',q:'What features does ILUMA I have that ILUMA I One does NOT?',o:['Auto Start and Auto Stop','Flex Puff','Touch screen, Pause Mode, and Flex Battery','Bluetooth connectivity'],a:2,e:'ILUMA I One = Auto Start, Auto Stop, Flex Puff. ILUMA I adds: touch screen, Pause Mode, Flex Battery, 3 uses.'},
+{id:108,l:'hard',t:'tf',q:'ILUMA I One has the Flex Puff feature.',o:['True','False'],a:0,e:'Yes — Flex Puff is one of the 3 features of ILUMA I One.'},
+{id:109,l:'hard',t:'mcq',q:'What technology does ILUMA use instead of a heating blade?',o:['Laser heating','Smart Core Induction System','Infrared heating','Magnetic proximity heating'],a:1,e:'ILUMA uses Smart Core Induction System — no blade, no cleaning needed.'},
+{id:110,l:'hard',t:'mcq',q:'Under MBG, what does a customer pay for if they return the device within 14 days?',o:['Nothing — full refund including Terea','Only the Terea sticks consumed','A 10% restocking fee','Delivery costs only'],a:1,e:'MBG: full device money back, but customer pays for the Terea sticks they used.'},
+{id:111,l:'hard',t:'mcq',q:'For VEEV Guided Trial, how does the customer prove they are a LAS (legal aged smoker)?',o:['Show national ID proving age 21+','Physically give 1 cigarette OR show a pod','Sign a declaration form','Show a cigarette pack'],a:1,e:'LAS proof = give 1 cigarette OR show a pod — confirms they\'re already a smoker.'},
+{id:112,l:'hard',t:'mcq',q:'What are the 4 levels of the IQOS Ambassador (MGM) badge?',o:['1, 5, 10, 15 referrals','1st, 3rd, 5th, 7th successful referral','2, 4, 6, 8 referrals','1, 3, 5, 10 referrals'],a:1,e:'Ambassador badge: L1=1st, L2=3rd, L3=5th, L4=7th successful referral.'},
+{id:113,l:'hard',t:'mcq',q:'What discount does the MGM code give to the referred friend?',o:['10% off','15% off','20% off','25% off'],a:2,e:'The friend who uses your MGM code gets 20% off IQOS devices.'},
+{id:114,l:'hard',t:'mcq',q:'ILUMA I Prime physical warranty: what replacement is allowed?',o:['Both holder and pocket charger','Holder only','Pocket charger only','Either holder OR pocket charger — once only'],a:3,e:'ILUMA I Prime physical: 1 replacement of EITHER holder OR pocket charger. Not both, not twice.'},
+{id:115,l:'hard',t:'mcq',q:'A customer bought ILUMA I but forgot to link it within 30 days. What warranty do they get?',o:['2 years Care Plus','1 year (software only)','1 year (software + physical)','6 months'],a:1,e:'No link in 30 days = 1 year warranty only (software only, since ILUMA I released after 23/6/2025).'},
+{id:116,l:'hard',t:'mcq',q:'Which devices ALWAYS have a 1-year warranty regardless of purchase date?',o:['ILUMA I and ILUMA I Prime','ILUMA One and ILUMA Prime','All ILUMA devices equally','ILUMA I One only'],a:1,e:'ILUMA One and ILUMA Prime are always 1 year — no Care Plus available for them.'},
+{id:117,l:'hard',t:'mcq',q:'What are the 3 categories of Outbound calls?',o:['Sales, Support, Retention','Acquisition, Hyper Care/LAU, Retention LAU','Inbound, Outbound, Digital','MBG, MGM, and CCP campaigns'],a:1,e:'Outbound: Acquisition (LAS→LAU), Hyper Care/LAU (follow-up), Retention LAU.'},
+{id:118,l:'hard',t:'mcq',q:'What does NBA stand for in the outbound call flow?',o:['National Basketball Association','Next Best Action','New Business Acquisition','Nicotine Behavior Assessment'],a:1,e:'NBA = Next Best Action — what to offer or suggest at the end of a call.'},
+{id:119,l:'hard',t:'mcq',q:'A customer\'s order status is "Received" and they want to cancel. What do you do?',o:['Tell them it\'s too late to cancel','Cancel the order and escalate via the form','Advise them to refuse delivery','Just open a complaint, no cancellation'],a:1,e:'Created or Received orders = cancel + escalate on the form.'},
+{id:120,l:'hard',t:'mcq',q:'Consumables Circular Hero badge Level 6 requires dropping off how many bags?',o:['20 bags','30 bags','40 bags','50 bags'],a:3,e:'Level 6 = 50 bags. Reward: 600 EGP IQOS Device Voucher OR 550 EGP 3rd party.'},
+{id:121,l:'hard',t:'mcq',q:'IQOS Anniversary badge: what reward does a customer get for 3 years as an LAU?',o:['200 EGP voucher','300 EGP voucher','400 EGP voucher','600 EGP voucher'],a:2,e:'Anniversary badge L3 (3 years LAU) = 400 EGP off any IQOS ILUMA device.'},
+{id:122,l:'hard',t:'mcq',q:'What 3 conditions are needed to earn the "Welcome" IQOS Club badge?',o:['Buy 3 Terea packs in one order','Newly joined Club + ILUMA device linked + HAV verified','Complete 5 games on IQOS Club','Make first purchase on IQOS.com'],a:1,e:'Welcome badge: newly joined + device linked + HAV verified → 50 EGP 3rd party voucher.'},
+{id:123,l:'hard',t:'mcq',q:'The IQOS Shopper badge requires registered purchases for how many consecutive months?',o:['1 month','2 months','3 months','6 months'],a:2,e:'IQOS Shopper = purchases for 3 consecutive months through IQOS.com, CSC, Telegram, or Brand Retail.'},
+{id:124,l:'hard',t:'tf',q:'The IQOS Shopper badge purchases can only be made on the IQOS.com website.',o:['True','False'],a:1,e:'Purchases can be through IQOS.com, CSC, Telegram, OR IQOS Brand Retail stores.'},
+{id:125,l:'hard',t:'mcq',q:'In the Terea intensity scale (descending), what comes immediately after Russet?',o:['Sienna','Amber','Khaki','Silver'],a:2,e:'Intensity order (high to low): Russet → Khaki → Sienna → Amber → Silver → Regan.'},
+{id:126,l:'hard',t:'tf',q:'Terea Silver is a high-intensity variant equivalent to a "Red" cigarette.',o:['True','False'],a:1,e:'Silver is LIGHT intensity (Silver/White/Gold equivalent). Red intensity = Russet and Khaki only.'},
+{id:127,l:'hard',t:'mcq',q:'For a Commercial Return of a SEALED, commercially purchased device, what is the refund SLA?',o:['3 working days','5 working days','7-10 working days','14 working days'],a:2,e:'Commercial return (sealed, not MBG) = 7-10 working days refund.'},
+{id:128,l:'hard',t:'mcq',q:'MBG Return refund SLA is:',o:['3-5 working days','7 working days exactly','7-10 working days','14 working days'],a:2,e:'MBG Return = 7-10 working days.'},
+{id:129,l:'hard',t:'mcq',q:'For a refund via Installments (PoR SLA), what is the waiting time?',o:['3 WD','5 WD','7 WD','10 WD'],a:3,e:'Installments PoR = 10 working days.'},
+{id:130,l:'hard',t:'mcq',q:'In the Outbound call flow structure, what comes AFTER Authentication?',o:['NBA','Survey','Call Flow','Greeting'],a:2,e:'Outbound flow: Greeting → Authentication → Call Flow → NBA → Further → Survey.'},
+{id:131,l:'hard',t:'mcq',q:'Retention outbound calls are made how frequently?',o:['Daily','Weekly','Bi-weekly or Monthly','Quarterly'],a:2,e:'Retention LAU outbound = Bi-weekly or Monthly.'},
+{id:132,l:'hard',t:'tf',q:'ILUMA I One features are: Auto Start, Auto Stop, and Flex Puff — and ONLY those three.',o:['True','False'],a:0,e:'Correct — ILUMA I One has exactly those 3 features. No touch screen, no Pause Mode, no Flex Battery.'},
+{id:133,l:'hard',t:'mcq',q:'What is the key difference between ILUMA I One and ILUMA One?',o:['They are completely identical','ILUMA I One belongs to the newer ILUMA I family','ILUMA One has more advanced features','They have the same price'],a:1,e:'ILUMA I One = part of the newer ILUMA I family. Both "Ones" give 20 consecutive uses but belong to different generations.'},
+{id:134,l:'hard',t:'mcq',q:'Pause Mode rule: after using it once in an experience, what happens to consecutive uses?',o:['You can still get 3 consecutive experiences normally','You cannot get a 3rd consecutive experience without recharging the holder','Pause Mode automatically resets','You can only use it in the 3rd experience next time'],a:1,e:'Use Pause Mode once (in exp 1 OR 2) → must return holder to pocket charger before another consecutive experience.'},
+{id:135,l:'hard',t:'mcq',q:'Machine Learning is a campaign under which outbound category?',o:['Retention','Hyper Care','Acquisition','MGM Program'],a:2,e:'Machine Learning = Acquisition campaign — helps convert LAS to LAU.'},
+{id:136,l:'hard',t:'mcq',q:'What discount does the Machine Learning campaign provide?',o:['200 EGP off','350 EGP off','400 EGP off','500 EGP off'],a:2,e:'Machine Learning campaign = 400 EGP discount on the IQOS device.'},
+{id:137,l:'hard',t:'tf',q:'IQOS Originals One has Bluetooth connectivity.',o:['True','False'],a:1,e:'IQOS Originals One has NO Bluetooth. Only IQOS Originals Duo has Bluetooth.'},
+{id:138,l:'hard',t:'mcq',q:'What is the opening mechanism of IQOS Originals Duo?',o:['Slide the lid','Wrap design','Side Door Mechanism','Soft Latch mechanism'],a:2,e:'IQOS Originals Duo = Side Door Mechanism.'},
+{id:139,l:'hard',t:'mcq',q:'Which classic IQOS device has 3 buttons (Power, Latch, and Bluetooth)?',o:['IQOS 3','IQOS 3 Multi','IQOS 2.4+','IQOS 3.1 DUO'],a:2,e:'IQOS 2.4+ has 3 buttons. All newer classic devices have only 1 button.'},
+{id:140,l:'hard',t:'mcq',q:'IQOS 2.4+ uses which type of charging cable?',o:['Type C','Type C to USB','Micro USB','Lightning'],a:2,e:'IQOS 2.4+ uses Micro USB. All newer classic IQOS devices use Type C.'},
+{id:141,l:'hard',t:'mcq',q:'What is the battery lifespan (mAh) of IQOS 3 and IQOS 3 Multi?',o:['7300','14600','10000','12000'],a:1,e:'IQOS 3 and Multi = 14600 mAh. IQOS 2.4+ = 7300 mAh.'},
+{id:142,l:'hard',t:'tf',q:'IQOS Multi gives 10 consecutive uses when the holder is fully charged.',o:['True','False'],a:0,e:'Yes — IQOS Multi = 10 consecutive uses. Unique feature vs other classic devices (1 use).'},
+{id:143,l:'hard',t:'mcq',q:'Which classic IQOS devices have the "Protect Plus System"?',o:['Only IQOS 3 and 3.1 DUO','IQOS 3, Multi, and 3.1 DUO (but NOT 2.4+)','All devices including IQOS 2.4+','ILUMA family only'],a:1,e:'Protect Plus: IQOS 3, Multi, and 3.1 DUO have it. IQOS 2.4+ does NOT.'},
+{id:144,l:'hard',t:'mcq',q:'What does LSMV stand for?',o:['Licensed Safety Management Vigilance','LifeSphere MultiVigilance','Legal Safety Monitoring Value','Local Safety Medical Verification'],a:1,e:'LSMV = LifeSphere MultiVigilance — the system used to escalate Adverse Events.'},
+{id:145,l:'hard',t:'tf',q:'All IQOS Club badges expire on 31/12/2026.',o:['True','False'],a:1,e:'Not all — IQOS Anniversary badge expires at end of each CALENDAR YEAR per level, not just 2026.'},
+{id:146,l:'hard',t:'mcq',q:'What are the correct VEEV key specs?',o:['Mesh tech, 100 puffs, 2mL, 68mAh — no charging','Mesh tech, 1100 puffs, 2mL, 68mAh — no charging, 20mg','Ceramic tech, 1100 puffs, 5mL, 100mAh','Mesh tech, 1000 puffs, 2mL, 50mAh'],a:1,e:'VEEV: Mesh tech, 1100 puffs, 2mL, 68mAh, no charging needed, 20mg nicotine, 99% less harmful chemicals.'},
+{id:147,l:'hard',t:'mcq',q:'The "Welcome" IQOS Club badge reward is:',o:['100 EGP IQOS voucher','200 EGP 3rd party voucher','50 EGP 3rd party voucher','Free Terea pack'],a:2,e:'Welcome badge = 50 EGP 3rd party voucher (one-time badge).'},
+{id:148,l:'hard',t:'mcq',q:'A customer with a Pearl Terea wants to use it WITHOUT the flavor. What should they do?',o:['Remove the switch before inserting','Just use it without crushing the switch','Heat at a lower temperature','It\'s not possible — Pearl is always flavored'],a:1,e:'Pearl switch is optional — just use without crushing = plain tobacco taste only.'},
+{id:149,l:'hard',t:'mcq',q:'IQOS Ambassador badge Level 4 (7th referral) reward is:',o:['400 EGP IQOS voucher OR 300 EGP 3rd party','500 EGP IQOS voucher OR 400 EGP 3rd party','600 EGP IQOS voucher OR 500 EGP 3rd party','300 EGP IQOS voucher only'],a:2,e:'Ambassador L4 = 600 EGP IQOS voucher OR 500 EGP 3rd party voucher.'},
+{id:150,l:'hard',t:'mcq',q:'What is the box/product identify code format (found on Terea pack or device box)?',o:['14 alphanumeric, starts with capital T','12 alphanumeric, starts with capital T','14 alphanumeric, does NOT start with T','12 alphanumeric, does NOT start with T'],a:3,e:'Box/product code = 12 alphanumeric, does NOT start with T. Device code = 14 chars, starts with T.'},
+];
 
-    function renderCurrent() {
-        const q = questions[currentIdx];
-        const percent = (currentIdx / 50) * 100;
-        progFill.style.width = `${percent}%`;
-        qcDisplay.textContent = `Question ${currentIdx + 1} of 50`;
-        scoreDisplaySpan.textContent = `⭐ Score: ${totalScore}`;
-        
-        const qLabelHtml = `<div class="q-header"><span class="q-label">QUESTION ${currentIdx+1}</span>${q.tricky ? '<span class="tricky-badge">⚠️ TRICKY</span>' : ''}</div>`;
-        const questionHtml = `<div class="question-text">${q.q}</div>`;
-        let optionsHtml = `<div class="options-grid">`;
-        q.opts.forEach((opt, idx) => {
-            const letter = String.fromCharCode(65+idx);
-            const isSelected = (userSelections[currentIdx] === idx);
-            const isCorrectAnswer = (idx === q.ans);
-            let extraClass = '';
-            let disabledAttr = '';
-            let onclickAttr = `onclick="selectOption(${idx})"`;
-            if (userSelections[currentIdx] !== -1) {
-                disabledAttr = 'disabled';
-                onclickAttr = '';
-                if (isCorrectAnswer) extraClass = 'option-correct';
-                else if (isSelected) extraClass = 'option-wrong';
-            }
-            optionsHtml += `<button class="option-btn ${extraClass}" ${disabledAttr} ${onclickAttr} style="display: flex;"><span class="option-prefix">${letter}</span><span>${opt}</span></button>`;
-        });
-        optionsHtml += `</div>`;
-        
-        let explanationHtml = '';
-        if (userSelections[currentIdx] !== -1) {
-            const isAnsCorrect = (userSelections[currentIdx] === q.ans);
-            explanationHtml = `<div class="explanation-card ${isAnsCorrect ? 'explanation-correct' : 'explanation-wrong'}">
-                ${isAnsCorrect ? '✓ Correct!' : '✗ Wrong'} — ${q.exp}
-            </div>`;
-        }
-        
-        dynamicDiv.innerHTML = qLabelHtml + questionHtml + optionsHtml + explanationHtml;
-        nextBtn.disabled = (userSelections[currentIdx] === -1);
-        nextBtn.textContent = (currentIdx === 49) ? 'Finish' : 'Next →';
-        prevBtn.style.visibility = currentIdx > 0 ? 'visible' : 'hidden';
-    }
-    
-    window.selectOption = function(optIndex) {
-        if (userSelections[currentIdx] !== -1) return;
-        userSelections[currentIdx] = optIndex;
-        const q = questions[currentIdx];
-        if (optIndex === q.ans) totalScore++;
-        renderCurrent();
-    };
-    
-    function nextQuestion() {
-        if (currentIdx === 49) {
-            finishQuiz();
-            return;
-        }
-        if (userSelections[currentIdx] === -1) return;
-        currentIdx++;
-        renderCurrent();
-    }
-    
-    function prevQuestion() {
-        if (currentIdx > 0) {
-            currentIdx--;
-            renderCurrent();
-        }
-    }
-    
-    function finishQuiz() {
-        quizInner.style.display = 'none';
-        finalScreenDiv.style.display = 'block';
-        const finalScore = totalScore;
-        const percent = Math.round((finalScore/50)*100);
-        document.getElementById('finalScoreSpan').innerHTML = `${finalScore}/50`;
-        const passThreshold = 85;
-        const isPass = percent >= passThreshold;
-        const passMsg = isPass ? `✅ PASSED! ${percent}% (≥85%)` : `❌ NOT PASSED • ${percent}% (need 85%)`;
-        document.getElementById('passMessage').innerHTML = passMsg;
-        document.getElementById('finalCorrect').innerText = finalScore;
-        document.getElementById('finalWrong').innerText = 50 - finalScore;
-        const trickyCorrect = trickyIndices.filter(i => userSelections[i] === questions[i].ans).length;
-        document.getElementById('finalTricky').innerText = `${trickyCorrect}/${trickyIndices.length}`;
-    }
-    
-    function restartQuiz() {
-        // reshuffle options for fairness on restart
-        questions = rawQuestions.map(q => shuffleOptions(q));
-        userSelections.fill(-1);
-        totalScore = 0;
-        currentIdx = 0;
-        quizInner.style.display = 'block';
-        finalScreenDiv.style.display = 'none';
-        renderCurrent();
-    }
-    
-    function showMistakes() {
-        const mistakes = [];
-        for (let i=0; i<questions.length; i++) {
-            const selected = userSelections[i];
-            if (selected === -1) continue;
-            if (selected !== questions[i].ans) {
-                const correctIdx = questions[i].ans;
-                const correctLetter = String.fromCharCode(65+correctIdx);
-                const correctText = questions[i].opts[correctIdx];
-                const userLetter = String.fromCharCode(65+selected);
-                const userText = questions[i].opts[selected];
-                mistakes.push({
-                    num: i+1,
-                    text: questions[i].q,
-                    user: `${userLetter}. ${userText}`,
-                    correct: `${correctLetter}. ${correctText}`,
-                    explanation: questions[i].exp,
-                    tricky: questions[i].tricky
-                });
-            }
-        }
-        if (mistakes.length === 0) {
-            mistakeListDiv.innerHTML = '<div style="padding: 1rem; text-align: center;">🎉 Flawless! No mistakes — you are a pro 🎉</div>';
-        } else {
-            mistakeListDiv.innerHTML = mistakes.map(m => `
-                <div class="mistake-entry">
-                    <div style="font-weight:700;">❓ Q${m.num}: ${m.text} ${m.tricky ? '⚠️ tricky' : ''}</div>
-                    <div style="margin-top: 6px;"><strong>Your answer:</strong> ${m.user}</div>
-                    <div><strong>✅ Correct:</strong> ${m.correct}</div>
-                    <div style="margin-top: 5px; font-size:0.8rem;">📘 ${m.explanation}</div>
-                </div>
-            `).join('');
-        }
-        modal.style.display = 'flex';
-    }
-    
-    function closeModalFunc() {
-        modal.style.display = 'none';
-    }
-    
-    prevBtn.onclick = prevQuestion;
-    nextBtn.onclick = nextQuestion;
-    restartMainBtn.onclick = restartQuiz;
-    reviewFinalBtn.onclick = showMistakes;
-    closeModalBtn.onclick = closeModalFunc;
-    modalCloseFooter.onclick = closeModalFunc;
-    window.onclick = (e) => { if (e.target === modal) closeModalFunc(); };
-    
-    renderCurrent();
+// ─── STATE ───
+let selectedLevel = 'all';
+let activeQuestions = [];
+let currentIdx = 0;
+let score = 0;
+let answered = false;
+let results = { easy:{c:0,t:0}, medium:{c:0,t:0}, hard:{c:0,t:0} };
+let wrongAnswers = [];
+
+// ─── NAVIGATION ───
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectLevel(lvl) {
+  selectedLevel = lvl;
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`[data-level="${lvl}"]`).classList.add('selected');
+  const counts = { all:150, easy:50, medium:50, hard:50 };
+  document.getElementById('q-count-display').textContent = `${counts[lvl]} questions selected`;
+}
+
+function startQuiz() {
+  if (selectedLevel === 'all') {
+    activeQuestions = shuffle([...ALL_QUESTIONS]);
+  } else {
+    activeQuestions = shuffle(ALL_QUESTIONS.filter(q => q.l === selectedLevel));
+  }
+  currentIdx = 0;
+  score = 0;
+  answered = false;
+  results = { easy:{c:0,t:0}, medium:{c:0,t:0}, hard:{c:0,t:0} };
+  wrongAnswers = [];
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ─── RENDER QUESTION ───
+function renderQuestion() {
+  answered = false;
+  const q = activeQuestions[currentIdx];
+  const total = activeQuestions.length;
+
+  // Header
+  document.getElementById('q-number').textContent = `Question ${currentIdx + 1} / ${total}`;
+  const badge = document.getElementById('q-level-badge');
+  badge.textContent = q.l.charAt(0).toUpperCase() + q.l.slice(1);
+  badge.className = 'q-level-badge ' + q.l;
+  document.getElementById('q-score-display').textContent = `${score} / ${currentIdx}`;
+  document.getElementById('progress-fill').style.width = `${(currentIdx / total) * 100}%`;
+
+  const body = document.getElementById('quiz-body');
+  const typeLabel = q.t === 'tf' ? '⊙ TRUE / FALSE' : '◈ MULTIPLE CHOICE';
+  const optionsHTML = q.t === 'tf' ? renderTF() : renderMCQ(q.o);
+
+  body.innerHTML = `
+    <div class="question-card">
+      <div class="q-type-label">${typeLabel}</div>
+      <div class="question-text">${q.q}</div>
+    </div>
+    ${optionsHTML}
+    <div id="explanation-box" style="display:none"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()">
+      ${currentIdx + 1 >= total ? 'See Results →' : 'Next →'}
+    </button>
+  `;
+}
+
+function renderMCQ(opts) {
+  const letters = ['A','B','C','D'];
+  return `<div class="options-grid">${opts.map((o,i) =>
+    `<button class="option-btn" onclick="selectMCQ(${i})" id="opt-${i}">
+      <span class="option-letter">${letters[i]}</span>
+      <span>${o}</span>
+    </button>`
+  ).join('')}</div>`;
+}
+
+function renderTF() {
+  return `<div class="tf-grid">
+    <button class="tf-btn tf-true" onclick="selectTF(0)" id="opt-0">
+      <span class="tf-icon">✓</span><span>True</span>
+    </button>
+    <button class="tf-btn tf-false" onclick="selectTF(1)" id="opt-1">
+      <span class="tf-icon">✗</span><span>False</span>
+    </button>
+  </div>`;
+}
+
+// ─── ANSWER HANDLERS ───
+function selectMCQ(idx) {
+  if (answered) return;
+  answered = true;
+  const q = activeQuestions[currentIdx];
+  const correct = q.a;
+
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  if (idx === correct) {
+    document.getElementById(`opt-${idx}`).classList.add('correct');
+    registerCorrect(q);
+  } else {
+    document.getElementById(`opt-${idx}`).classList.add('wrong');
+    document.getElementById(`opt-${correct}`).classList.add('reveal-correct');
+    registerWrong(q, q.o[idx]);
+  }
+
+  showExplanation(q.e);
+}
+
+function selectTF(idx) {
+  if (answered) return;
+  answered = true;
+  const q = activeQuestions[currentIdx];
+  const correct = q.a;
+
+  document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+
+  if (idx === correct) {
+    document.getElementById(`opt-${idx}`).classList.add('correct');
+    registerCorrect(q);
+  } else {
+    document.getElementById(`opt-${idx}`).classList.add('wrong');
+    document.getElementById(`opt-${correct}`).classList.add('reveal-correct');
+    registerWrong(q, idx === 0 ? 'True' : 'False');
+  }
+
+  showExplanation(q.e);
+}
+
+function registerCorrect(q) {
+  score++;
+  results[q.l].c++;
+  results[q.l].t++;
+}
+
+function registerWrong(q, yourAnswer) {
+  results[q.l].t++;
+  const correctAns = q.t === 'tf' ? (q.a === 0 ? 'True' : 'False') : q.o[q.a];
+  wrongAnswers.push({ q: q.q, yours: yourAnswer, correct: correctAns, exp: q.e });
+}
+
+function showExplanation(text) {
+  const box = document.getElementById('explanation-box');
+  box.innerHTML = `<strong>💡 </strong>${text}`;
+  box.style.display = 'block';
+  document.getElementById('next-btn').style.display = 'flex';
+  document.getElementById('next-btn').style.justifyContent = 'flex-end';
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= activeQuestions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ─── RESULTS ───
+function showResults() {
+  showScreen('results');
+  const total = activeQuestions.length;
+  const pct = Math.round((score / total) * 100);
+
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-denom').textContent = `/ ${total}`;
+
+  // Animate arc
+  const circumference = 2 * Math.PI * 72;
+  const offset = circumference - (pct / 100) * circumference;
+  setTimeout(() => {
+    document.getElementById('score-arc').style.strokeDashoffset = offset;
+    const arc = document.getElementById('score-arc');
+    if (pct >= 80) arc.style.stroke = 'var(--easy)';
+    else if (pct >= 60) arc.style.stroke = 'var(--medium)';
+    else arc.style.stroke = 'var(--hard)';
+  }, 100);
+
+  // Grade
+  let grade, color;
+  if (pct >= 90) { grade = '🏆 Certified Expert'; color = 'var(--easy)'; }
+  else if (pct >= 80) { grade = '⭐ Almost There'; color = 'var(--cyan)'; }
+  else if (pct >= 70) { grade = '📈 Keep Grinding'; color = 'var(--medium)'; }
+  else if (pct >= 60) { grade = '⚡ Need More Study'; color = 'var(--gold)'; }
+  else { grade = '📚 Study Mode On'; color = 'var(--hard)'; }
+
+  const gradeEl = document.getElementById('score-grade');
+  gradeEl.textContent = `${pct}% — ${grade}`;
+  gradeEl.style.color = color;
+
+  // Breakdown
+  const lvls = ['easy','medium','hard'];
+  const ids = ['easy','med','hard'];
+  lvls.forEach((l, i) => {
+    const r = results[l];
+    document.getElementById(`bd-${ids[i]}`).textContent = r.c;
+    document.getElementById(`bd-${ids[i]}-t`).textContent = `/ ${r.t}`;
+  });
+
+  // Wrong answers review
+  const rev = document.getElementById('review-section');
+  if (wrongAnswers.length === 0) {
+    rev.innerHTML = `<div style="text-align:center;color:var(--easy);font-family:'Syne',sans-serif;font-size:18px;font-weight:700;padding:20px">🎯 Perfect Score! No wrong answers!</div>`;
+  } else {
+    rev.innerHTML = `<div class="review-title">Wrong Answers Review (${wrongAnswers.length})</div>` +
+      wrongAnswers.map(w => `
+        <div class="review-item">
+          <div class="ri-q">❓ ${w.q}</div>
+          <div class="ri-answers">
+            <div class="ri-your">✗ Your answer: ${w.yours}</div>
+            <div class="ri-correct">✓ Correct: ${w.correct}</div>
+            <div class="ri-exp">💡 ${w.exp}</div>
+          </div>
+        </div>
+      `).join('');
+  }
+}
+
+function restartSame() {
+  startQuiz();
+}
+
+function goHome() {
+  showScreen('home');
+}
 </script>
 </body>
 </html>
